@@ -347,17 +347,59 @@ function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function variants(str){return str.split("|").map(norm)}
 function display(str){return str.split("|").join(" / ")}
 
-function distractors(form, n){
-  const correct = variants(current[form]);
-  const out=[], seen=new Set(correct);
+/* ---- morfología inglesa básica (para generar trampas plausibles) ---- */
+const VOW="aeiou";
+function isCVC(w){
+  if(w.length<3) return false;
+  const a=w[w.length-1], b=w[w.length-2], c=w[w.length-3];
+  if(VOW.includes(a)||a==='w'||a==='x'||a==='y') return false; // termina en consonante "doblable"
+  if(!VOW.includes(b)) return false;                            // vocal antes
+  if(VOW.includes(c)) return false;                             // consonante antes de la vocal
+  return true;
+}
+function addED(w){
+  if(w.endsWith("e")) return w+"d";
+  if(w.length>2 && w.endsWith("y") && !VOW.includes(w[w.length-2])) return w.slice(0,-1)+"ied";
+  if(isCVC(w)) return w+w[w.length-1]+"ed";
+  return w+"ed";
+}
+function addING(w){
+  if(w.length>2 && w.endsWith("e") && !w.endsWith("ee")) return w.slice(0,-1)+"ing";
+  if(isCVC(w)) return w+w[w.length-1]+"ing";
+  return w+"ing";
+}
+
+/* relleno: formas de otros verbos (solo si faltan trampas del mismo verbo) */
+function distractorsOther(form, n){
+  const out=[], seen=new Set(variants(current[form]));
   const others = pool().slice().sort(()=>Math.random()-0.5);
   for(const v of others){
     const key = norm(v[form].split("|")[0]);
     if(seen.has(key)) continue;
     seen.add(key);
-    out.push(display(v[form]));
+    out.push(v[form].split("|")[0]);
     if(out.length===n) break;
   }
+  return out;
+}
+
+/* trampas plausibles a partir del MISMO verbo */
+function getDistractors(form){
+  const exclude = new Set([...variants(current[form]), ...variants(current[shownForm])]);
+  const inf = current.inf.split("|")[0];
+  const cands=[];
+  const add=x=>{ const k=norm(x); if(!k||exclude.has(k)||cands.some(c=>norm(c)===k)) return; cands.push(x); };
+  // otras formas reales del verbo (confusión pasado ↔ participio ↔ infinitivo)
+  add(current.past.split("|")[0]);
+  add(current.part.split("|")[0]);
+  add(inf);
+  // trampa regular/irregular + errores típicos de ortografía
+  add(addED(inf));        // regularización (writed, goed) o el -ed correcto
+  add(inf+"ed");          // -ed "crudo" mal escrito (studyed, stoped, likeed)
+  add(addING(inf));       // gerundio como ruido
+  add(inf+"s");           // 3ª persona como ruido
+  let out = cands.sort(()=>Math.random()-0.5).slice(0,3);
+  if(out.length<3) out = out.concat(distractorsOther(form, 3-out.length));
   return out;
 }
 
@@ -380,8 +422,8 @@ function newRound(auto){
     const group=document.createElement("div");
     group.className="opts-group";
     group.innerHTML=`<span class="label">${LBL[targetForm]}</span>`;
-    const correct=display(current[targetForm]);
-    const opciones=[correct,...distractors(targetForm,3)].sort(()=>Math.random()-0.5);
+    const correct=current[targetForm].split("|")[0];
+    const opciones=[correct,...getDistractors(targetForm)].sort(()=>Math.random()-0.5);
     opciones.forEach(op=>{
       const b=document.createElement("button");
       b.className="opt"; b.textContent=op;
