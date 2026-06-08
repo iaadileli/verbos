@@ -52,7 +52,12 @@
   .prompt{margin:14px 0 6px}
   .prompt .es{font-size:.95rem;color:var(--tinta-suave)}
   .shown{font-size:2.3rem;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .shown .lbl{font-size:.8rem;color:var(--tinta-suave);font-family:system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+  .form-row{display:flex;align-items:center;gap:10px;margin:6px 0 4px;flex-wrap:wrap}
+  .form-chip{display:inline-block;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;
+             color:#4a6b8a;background:#dde7ef;padding:4px 10px;border-radius:999px;
+             font-family:system-ui,sans-serif;font-weight:700;flex:0 0 auto}
+  .form-hint{font-size:.85rem;color:var(--tinta-suave);font-family:system-ui,sans-serif}
+  .form-hint b{color:var(--tinta);font-weight:700}
 
   .spk{cursor:pointer;border:none;background:var(--acento-soft);color:var(--acento);
        width:34px;height:34px;border-radius:50%;font-size:1rem;line-height:1;
@@ -61,8 +66,8 @@
   .spk.sm{width:26px;height:26px;font-size:.8rem}
 
   .fields{margin-top:18px;display:flex;flex-direction:column;gap:12px}
-  .field label{display:block;font-size:.78rem;color:var(--tinta-suave);
-               font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+  .field label{display:block;font-size:.83rem;color:var(--tinta-suave);
+               font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-weight:600}
   .field input{
     width:100%;font-size:1.25rem;font-family:inherit;padding:11px 14px;border-radius:12px;
     border:1.5px solid var(--borde);background:#fcf8f0;color:var(--tinta);outline:none;
@@ -101,8 +106,8 @@
 
   /* botones de opción (modo test) */
   .opts-group{margin-top:10px}
-  .opts-group > .label{display:block;font-size:.78rem;color:var(--tinta-suave);
-       font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .opts-group > .label{display:block;font-size:.83rem;color:var(--tinta-suave);
+       font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-weight:600}
   .opt{display:block;width:100%;text-align:left;font-family:inherit;font-size:1.2rem;
        padding:13px 16px;margin-bottom:9px;border-radius:12px;border:1.5px solid var(--borde);
        background:#fcf8f0;color:var(--tinta);cursor:pointer;transition:transform .05s}
@@ -137,10 +142,13 @@
   <span id="tipo" class="tag">irregular</span>
   <div class="prompt">
     <div class="es" id="es">significado</div>
+    <div class="form-row">
+      <span id="shownLbl" class="form-chip">infinitivo</span>
+      <span id="instruccion" class="form-hint"></span>
+    </div>
     <div class="shown">
       <span id="shown">go</span>
       <button class="spk" id="shownSpk" title="Escuchar">🔊</button>
-      <span class="lbl" id="shownLbl">infinitivo</span>
     </div>
   </div>
   <div class="fields" id="fields"></div>
@@ -444,6 +452,15 @@ function newRound(auto){
     });
     fields.querySelector("input").focus();
     $("btnCheck").classList.remove("hidden");
+  }
+  const instrEl=$("instruccion");
+  if(instrEl){
+    if(testMode){
+      instrEl.innerHTML=`→ ¿cuál es el <b>${LBL[targetForm]}</b>?`;
+    }else{
+      const rl=FORMS.filter(f=>f!==shownForm).map(f=>`<b>${LBL[f]}</b>`);
+      instrEl.innerHTML=`→ escribe el ${rl.join(" y el ")}`;
+    }
   }
   $("btnNext").classList.add("hidden");
   if(auto) speak(current[shownForm]);
