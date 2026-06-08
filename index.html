@@ -58,6 +58,7 @@
              font-family:system-ui,sans-serif;font-weight:700;flex:0 0 auto}
   .form-hint{font-size:.85rem;color:var(--tinta-suave);font-family:system-ui,sans-serif}
   .form-hint b{color:var(--tinta);font-weight:700}
+  .sub-hint{font-weight:400;text-transform:none;letter-spacing:0;opacity:.75;font-style:italic}
 
   .spk{cursor:pointer;border:none;background:var(--acento-soft);color:var(--acento);
        width:34px;height:34px;border-radius:50%;font-size:1rem;line-height:1;
@@ -326,7 +327,8 @@ const VERBS = [
 ];
 
 const FORMS = ["inf","past","part"];
-const LBL = {inf:"infinitivo", past:"pasado", part:"participio"};
+const LBL = {inf:"infinitivo", past:"pasado simple", part:"participio"};
+const EX  = {inf:"(to ___)", past:"(I ___ · ayer)", part:"(I have ___ · have/had)"};
 
 const $ = id => document.getElementById(id);
 const norm = s => s.toLowerCase().trim().replace(/\s+/g," ").replace(/[.,;]+$/,"");
@@ -419,7 +421,7 @@ function newRound(auto){
   $("tipo").className = "tag" + (current.irr?"":" reg");
   $("es").textContent = "= " + current.es;
   $("shown").textContent = display(current[shownForm]);
-  $("shownLbl").textContent = LBL[shownForm];
+  $("shownLbl").innerHTML = `${LBL[shownForm]} <span class="sub-hint">${EX[shownForm]}</span>`;
 
   const fields=$("fields"); fields.innerHTML="";
   const rest = FORMS.filter(f=>f!==shownForm);
@@ -429,7 +431,7 @@ function newRound(auto){
     targetForm = pick(rest);
     const group=document.createElement("div");
     group.className="opts-group";
-    group.innerHTML=`<span class="label">${LBL[targetForm]}</span>`;
+    group.innerHTML=`<span class="label">${LBL[targetForm]} <span class="sub-hint">${EX[targetForm]}</span></span>`;
     const correct=current[targetForm].split("|")[0];
     const opciones=[correct,...getDistractors(targetForm)].sort(()=>Math.random()-0.5);
     opciones.forEach(op=>{
@@ -446,7 +448,7 @@ function newRound(auto){
     rest.forEach(f=>{
       const wrap=document.createElement("div");
       wrap.className="field"; wrap.dataset.form=f;
-      wrap.innerHTML=`<label>${LBL[f]}</label>
+      wrap.innerHTML=`<label>${LBL[f]} <span class="sub-hint">${EX[f]}</span></label>
         <input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">`;
       fields.appendChild(wrap);
     });
