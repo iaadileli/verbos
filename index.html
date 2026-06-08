@@ -51,8 +51,14 @@
 
   .prompt{margin:14px 0 6px}
   .prompt .es{font-size:.95rem;color:var(--tinta-suave)}
-  .shown{font-size:2.3rem;font-weight:600;margin-top:2px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .shown{font-size:2.3rem;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .shown .lbl{font-size:.8rem;color:var(--tinta-suave);font-family:system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+
+  .spk{cursor:pointer;border:none;background:var(--acento-soft);color:var(--acento);
+       width:34px;height:34px;border-radius:50%;font-size:1rem;line-height:1;
+       display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto}
+  .spk:active{transform:scale(.92)}
+  .spk.sm{width:26px;height:26px;font-size:.8rem}
 
   .fields{margin-top:18px;display:flex;flex-direction:column;gap:12px}
   .field label{display:block;font-size:.78rem;color:var(--tinta-suave);
@@ -64,14 +70,14 @@
   .field input:focus{border-color:var(--acento)}
   .field.ok input{border-color:var(--verde);background:var(--verde-bg)}
   .field.bad input{border-color:var(--rojo);background:var(--rojo-bg)}
-  .sol{font-size:.85rem;margin-top:5px;font-family:system-ui,sans-serif}
+  .sol{font-size:.9rem;margin-top:6px;font-family:system-ui,sans-serif;display:flex;align-items:center;gap:8px}
   .sol.ok{color:var(--verde)}
   .sol.bad{color:var(--rojo)}
 
   .actions{margin-top:18px;display:flex;gap:10px}
-  button{font-family:system-ui,sans-serif;font-size:1rem;font-weight:600;cursor:pointer;
+  button.act{font-family:system-ui,sans-serif;font-size:1rem;font-weight:600;cursor:pointer;
          border:none;border-radius:12px;padding:13px 18px;flex:1;transition:transform .05s}
-  button:active{transform:scale(.98)}
+  button.act:active{transform:scale(.98)}
   .btn-main{background:var(--acento);color:#fff}
   .btn-soft{background:var(--acento-soft);color:var(--tinta)}
   .hidden{display:none}
@@ -87,7 +93,7 @@
 <body>
 <header>
   <h1>Verbos en inglés</h1>
-  <div class="sub">Te muestro una forma · completa las que faltan</div>
+  <div class="sub">Te muestro una forma · completa las que faltan · 🔊 para oírla</div>
 </header>
 
 <div class="stats">
@@ -101,12 +107,16 @@
   <span id="tipo" class="tag">irregular</span>
   <div class="prompt">
     <div class="es" id="es">significado</div>
-    <div class="shown"><span id="shown">go</span><span class="lbl" id="shownLbl">infinitivo</span></div>
+    <div class="shown">
+      <span id="shown">go</span>
+      <button class="spk" id="shownSpk" title="Escuchar">🔊</button>
+      <span class="lbl" id="shownLbl">infinitivo</span>
+    </div>
   </div>
   <div class="fields" id="fields"></div>
   <div class="actions">
-    <button class="btn-main" id="btnCheck">Comprobar</button>
-    <button class="btn-soft hidden" id="btnNext">Siguiente →</button>
+    <button class="act btn-main" id="btnCheck">Comprobar</button>
+    <button class="act btn-soft hidden" id="btnNext">Siguiente →</button>
   </div>
 </div>
 
@@ -115,26 +125,34 @@
   <label><input type="checkbox" id="optIrr" checked> incluir irregulares</label>
 </div>
 
-<footer>Hecho para Adil · escribe la respuesta y pulsa Enter</footer>
+<footer>Hecho para Adil · escribe la respuesta y pulsa Enter · 150 verbos</footer>
 
 <script>
 /* ===== Lista de verbos =====
    inf / past / part: usa "a|b" para aceptar variantes (se muestra la 1ª).
-   es: traducción.  irr: true=irregular, false=regular */
+   es: traducción.  irr: true=irregular, false=regular
+   100 irregulares + 50 regulares = 150 */
 const VERBS = [
-  // ---- irregulares ----
+  // ---------- 100 IRREGULARES ----------
   {inf:"be", past:"was|were", part:"been", es:"ser / estar", irr:true},
+  {inf:"beat", past:"beat", part:"beaten", es:"golpear / vencer", irr:true},
   {inf:"become", past:"became", part:"become", es:"convertirse en", irr:true},
   {inf:"begin", past:"began", part:"begun", es:"empezar", irr:true},
+  {inf:"bend", past:"bent", part:"bent", es:"doblar / torcer", irr:true},
+  {inf:"bet", past:"bet", part:"bet", es:"apostar", irr:true},
+  {inf:"bite", past:"bit", part:"bitten", es:"morder", irr:true},
+  {inf:"blow", past:"blew", part:"blown", es:"soplar", irr:true},
   {inf:"break", past:"broke", part:"broken", es:"romper", irr:true},
   {inf:"bring", past:"brought", part:"brought", es:"traer", irr:true},
   {inf:"build", past:"built", part:"built", es:"construir", irr:true},
+  {inf:"burn", past:"burnt|burned", part:"burnt|burned", es:"quemar", irr:true},
   {inf:"buy", past:"bought", part:"bought", es:"comprar", irr:true},
   {inf:"catch", past:"caught", part:"caught", es:"coger / atrapar", irr:true},
   {inf:"choose", past:"chose", part:"chosen", es:"elegir", irr:true},
   {inf:"come", past:"came", part:"come", es:"venir", irr:true},
   {inf:"cost", past:"cost", part:"cost", es:"costar", irr:true},
   {inf:"cut", past:"cut", part:"cut", es:"cortar", irr:true},
+  {inf:"deal", past:"dealt", part:"dealt", es:"tratar / repartir", irr:true},
   {inf:"do", past:"did", part:"done", es:"hacer", irr:true},
   {inf:"draw", past:"drew", part:"drawn", es:"dibujar", irr:true},
   {inf:"dream", past:"dreamt|dreamed", part:"dreamt|dreamed", es:"soñar", irr:true},
@@ -142,33 +160,42 @@ const VERBS = [
   {inf:"drive", past:"drove", part:"driven", es:"conducir", irr:true},
   {inf:"eat", past:"ate", part:"eaten", es:"comer", irr:true},
   {inf:"fall", past:"fell", part:"fallen", es:"caer", irr:true},
+  {inf:"feed", past:"fed", part:"fed", es:"alimentar / dar de comer", irr:true},
   {inf:"feel", past:"felt", part:"felt", es:"sentir", irr:true},
   {inf:"fight", past:"fought", part:"fought", es:"luchar / pelear", irr:true},
   {inf:"find", past:"found", part:"found", es:"encontrar", irr:true},
   {inf:"fly", past:"flew", part:"flown", es:"volar", irr:true},
   {inf:"forget", past:"forgot", part:"forgotten", es:"olvidar", irr:true},
   {inf:"forgive", past:"forgave", part:"forgiven", es:"perdonar", irr:true},
+  {inf:"freeze", past:"froze", part:"frozen", es:"congelar", irr:true},
   {inf:"get", past:"got", part:"got|gotten", es:"obtener / conseguir", irr:true},
   {inf:"give", past:"gave", part:"given", es:"dar", irr:true},
   {inf:"go", past:"went", part:"gone", es:"ir", irr:true},
   {inf:"grow", past:"grew", part:"grown", es:"crecer", irr:true},
+  {inf:"hang", past:"hung", part:"hung", es:"colgar", irr:true},
   {inf:"have", past:"had", part:"had", es:"tener / haber", irr:true},
   {inf:"hear", past:"heard", part:"heard", es:"oír", irr:true},
   {inf:"hide", past:"hid", part:"hidden", es:"esconder", irr:true},
   {inf:"hit", past:"hit", part:"hit", es:"golpear", irr:true},
   {inf:"hold", past:"held", part:"held", es:"sujetar / sostener", irr:true},
+  {inf:"hurt", past:"hurt", part:"hurt", es:"doler / herir", irr:true},
   {inf:"keep", past:"kept", part:"kept", es:"mantener / guardar", irr:true},
   {inf:"know", past:"knew", part:"known", es:"saber / conocer", irr:true},
+  {inf:"lay", past:"laid", part:"laid", es:"poner / colocar", irr:true},
+  {inf:"lead", past:"led", part:"led", es:"liderar / guiar", irr:true},
   {inf:"learn", past:"learnt|learned", part:"learnt|learned", es:"aprender", irr:true},
   {inf:"leave", past:"left", part:"left", es:"dejar / marcharse", irr:true},
   {inf:"lend", past:"lent", part:"lent", es:"prestar", irr:true},
   {inf:"let", past:"let", part:"let", es:"permitir / dejar", irr:true},
+  {inf:"lie", past:"lay", part:"lain", es:"tumbarse / yacer", irr:true},
+  {inf:"light", past:"lit|lighted", part:"lit|lighted", es:"encender", irr:true},
   {inf:"lose", past:"lost", part:"lost", es:"perder", irr:true},
   {inf:"make", past:"made", part:"made", es:"hacer / fabricar", irr:true},
   {inf:"mean", past:"meant", part:"meant", es:"significar", irr:true},
   {inf:"meet", past:"met", part:"met", es:"conocer / quedar", irr:true},
   {inf:"pay", past:"paid", part:"paid", es:"pagar", irr:true},
   {inf:"put", past:"put", part:"put", es:"poner", irr:true},
+  {inf:"quit", past:"quit", part:"quit", es:"dejar / abandonar", irr:true},
   {inf:"read", past:"read", part:"read", es:"leer", irr:true},
   {inf:"ride", past:"rode", part:"ridden", es:"montar (bici/caballo)", irr:true},
   {inf:"ring", past:"rang", part:"rung", es:"sonar / llamar", irr:true},
@@ -178,15 +205,24 @@ const VERBS = [
   {inf:"see", past:"saw", part:"seen", es:"ver", irr:true},
   {inf:"sell", past:"sold", part:"sold", es:"vender", irr:true},
   {inf:"send", past:"sent", part:"sent", es:"enviar", irr:true},
+  {inf:"shake", past:"shook", part:"shaken", es:"sacudir / agitar", irr:true},
+  {inf:"shine", past:"shone", part:"shone", es:"brillar", irr:true},
+  {inf:"shoot", past:"shot", part:"shot", es:"disparar", irr:true},
   {inf:"show", past:"showed", part:"shown|showed", es:"mostrar", irr:true},
   {inf:"shut", past:"shut", part:"shut", es:"cerrar", irr:true},
   {inf:"sing", past:"sang", part:"sung", es:"cantar", irr:true},
+  {inf:"sink", past:"sank", part:"sunk", es:"hundir", irr:true},
   {inf:"sit", past:"sat", part:"sat", es:"sentarse", irr:true},
   {inf:"sleep", past:"slept", part:"slept", es:"dormir", irr:true},
   {inf:"speak", past:"spoke", part:"spoken", es:"hablar", irr:true},
+  {inf:"spell", past:"spelt|spelled", part:"spelt|spelled", es:"deletrear", irr:true},
   {inf:"spend", past:"spent", part:"spent", es:"gastar / pasar (tiempo)", irr:true},
+  {inf:"spread", past:"spread", part:"spread", es:"extender / untar", irr:true},
   {inf:"stand", past:"stood", part:"stood", es:"estar de pie", irr:true},
   {inf:"steal", past:"stole", part:"stolen", es:"robar", irr:true},
+  {inf:"stick", past:"stuck", part:"stuck", es:"pegar / atascar", irr:true},
+  {inf:"swear", past:"swore", part:"sworn", es:"jurar", irr:true},
+  {inf:"sweep", past:"swept", part:"swept", es:"barrer", irr:true},
   {inf:"swim", past:"swam", part:"swum", es:"nadar", irr:true},
   {inf:"take", past:"took", part:"taken", es:"coger / tomar / llevar", irr:true},
   {inf:"teach", past:"taught", part:"taught", es:"enseñar", irr:true},
@@ -198,12 +234,14 @@ const VERBS = [
   {inf:"wear", past:"wore", part:"worn", es:"llevar puesto", irr:true},
   {inf:"win", past:"won", part:"won", es:"ganar", irr:true},
   {inf:"write", past:"wrote", part:"written", es:"escribir", irr:true},
-  // ---- regulares ----
+  // ---------- 50 REGULARES ----------
   {inf:"work", past:"worked", part:"worked", es:"trabajar", irr:false},
   {inf:"play", past:"played", part:"played", es:"jugar / tocar", irr:false},
   {inf:"want", past:"wanted", part:"wanted", es:"querer", irr:false},
   {inf:"need", past:"needed", part:"needed", es:"necesitar", irr:false},
   {inf:"like", past:"liked", part:"liked", es:"gustar", irr:false},
+  {inf:"love", past:"loved", part:"loved", es:"amar / encantar", irr:false},
+  {inf:"hate", past:"hated", part:"hated", es:"odiar", irr:false},
   {inf:"live", past:"lived", part:"lived", es:"vivir", irr:false},
   {inf:"study", past:"studied", part:"studied", es:"estudiar", irr:false},
   {inf:"watch", past:"watched", part:"watched", es:"ver / mirar", irr:false},
@@ -227,6 +265,26 @@ const VERBS = [
   {inf:"carry", past:"carried", part:"carried", es:"llevar / cargar", irr:false},
   {inf:"enjoy", past:"enjoyed", part:"enjoyed", es:"disfrutar", irr:false},
   {inf:"finish", past:"finished", part:"finished", es:"terminar", irr:false},
+  {inf:"wait", past:"waited", part:"waited", es:"esperar", irr:false},
+  {inf:"arrive", past:"arrived", part:"arrived", es:"llegar", irr:false},
+  {inf:"stay", past:"stayed", part:"stayed", es:"quedarse", irr:false},
+  {inf:"visit", past:"visited", part:"visited", es:"visitar", irr:false},
+  {inf:"remember", past:"remembered", part:"remembered", es:"recordar", irr:false},
+  {inf:"decide", past:"decided", part:"decided", es:"decidir", irr:false},
+  {inf:"explain", past:"explained", part:"explained", es:"explicar", irr:false},
+  {inf:"change", past:"changed", part:"changed", es:"cambiar", irr:false},
+  {inf:"happen", past:"happened", part:"happened", es:"suceder / ocurrir", irr:false},
+  {inf:"move", past:"moved", part:"moved", es:"mover(se)", irr:false},
+  {inf:"turn", past:"turned", part:"turned", es:"girar", irr:false},
+  {inf:"follow", past:"followed", part:"followed", es:"seguir", irr:false},
+  {inf:"wash", past:"washed", part:"washed", es:"lavar", irr:false},
+  {inf:"rain", past:"rained", part:"rained", es:"llover", irr:false},
+  {inf:"share", past:"shared", part:"shared", es:"compartir", irr:false},
+  {inf:"plan", past:"planned", part:"planned", es:"planear", irr:false},
+  {inf:"prefer", past:"preferred", part:"preferred", es:"preferir", irr:false},
+  {inf:"worry", past:"worried", part:"worried", es:"preocuparse", irr:false},
+  {inf:"marry", past:"married", part:"married", es:"casarse", irr:false},
+  {inf:"invite", past:"invited", part:"invited", es:"invitar", irr:false},
 ];
 
 const FORMS = ["inf","past","part"];
@@ -238,17 +296,27 @@ const norm = s => s.toLowerCase().trim().replace(/\s+/g," ").replace(/[.,;]+$/,"
 let current=null, shownForm=null, answered=false;
 let score = JSON.parse(localStorage.getItem("verbos_score")||"null") || {aciertos:0,racha:0,record:0,total:0};
 
+/* ---- pronunciación ---- */
+function speak(str){
+  if(!("speechSynthesis" in window)) return;
+  const word = str.split("|")[0];
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = "en-GB";
+  u.rate = 0.85;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
 function pool(){
   const reg=$("optReg").checked, irr=$("optIrr").checked;
   let p=VERBS.filter(v=> (v.irr&&irr) || (!v.irr&&reg));
   return p.length?p:VERBS;
 }
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-
 function variants(str){return str.split("|").map(norm)}
 function display(str){return str.split("|").join(" / ")}
 
-function newRound(){
+function newRound(auto){
   answered=false;
   current=pick(pool());
   shownForm=pick(FORMS);
@@ -269,6 +337,7 @@ function newRound(){
   fields.querySelector("input").focus();
   $("btnCheck").classList.remove("hidden");
   $("btnNext").classList.add("hidden");
+  if(auto) speak(current[shownForm]);
 }
 
 function check(){
@@ -282,16 +351,13 @@ function check(){
     const ok=variants(current[f]).includes(val) && val!=="";
     wrap.classList.add(ok?"ok":"bad");
     input.disabled=true;
-    if(!ok){
-      allOk=false;
-      const s=document.createElement("div");
-      s.className="sol bad"; s.textContent="✗ "+display(current[f]);
-      wrap.appendChild(s);
-    }else{
-      const s=document.createElement("div");
-      s.className="sol ok"; s.textContent="✓ correcto";
-      wrap.appendChild(s);
-    }
+    const s=document.createElement("div");
+    s.className="sol "+(ok?"ok":"bad");
+    s.innerHTML = (ok?"✓ ":"✗ ") + display(current[f]) +
+      ` <button class="spk sm" title="Escuchar">🔊</button>`;
+    s.querySelector("button").addEventListener("click",()=>speak(current[f]));
+    wrap.appendChild(s);
+    if(!ok) allOk=false;
   });
   score.total++;
   if(allOk){score.aciertos++; score.racha++; if(score.racha>score.record)score.record=score.racha;}
@@ -310,16 +376,17 @@ function paint(){
   $("sTotal").textContent=score.total;
 }
 
+$("shownSpk").addEventListener("click",()=>speak(current[shownForm]));
 $("btnCheck").addEventListener("click",check);
-$("btnNext").addEventListener("click",newRound);
-$("optReg").addEventListener("change",newRound);
-$("optIrr").addEventListener("change",newRound);
+$("btnNext").addEventListener("click",()=>newRound(true));
+$("optReg").addEventListener("change",()=>newRound(false));
+$("optIrr").addEventListener("change",()=>newRound(false));
 document.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){ e.preventDefault(); answered?newRound():check(); }
+  if(e.key==="Enter"){ e.preventDefault(); answered?newRound(true):check(); }
 });
 
 paint();
-newRound();
+newRound(false);
 </script>
 </body>
 </html>
